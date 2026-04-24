@@ -32,8 +32,12 @@ const postJob = async (req, res) => {
       success: true
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error", success: false });
+    console.error("Post Job Error:", error);
+    return res.status(500).json({ 
+        message: "Internal server error during job posting", 
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        success: false 
+    });
   }
 };
 
@@ -62,8 +66,12 @@ const getAllJobs = async (req, res) => {
       success: true
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error", success: false });
+    console.error("Get All Jobs Error:", error);
+    return res.status(500).json({ 
+        message: "Internal server error while fetching jobs", 
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        success: false 
+    });
   }
 };
 
