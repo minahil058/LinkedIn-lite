@@ -1,14 +1,18 @@
 const app = require('../backend/src/app');
 const connectDB = require('../backend/src/config/db');
 
-// Connect to database if not already connected
-// (Vercel serverless functions might reuse the container)
-let cachedDb = null;
+let isConnected = false;
 
 module.exports = async (req, res) => {
-    if (!cachedDb) {
-        await connectDB();
-        cachedDb = true;
+    try {
+        if (!isConnected) {
+            await connectDB();
+            isConnected = true;
+        }
+        // Ye line ensure karti hai ke Express handle kare request ko
+        return app(req, res);
+    } catch (error) {
+        console.error("Vercel Function Error:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
     }
-    return app(req, res);
 };
