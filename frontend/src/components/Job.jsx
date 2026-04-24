@@ -29,7 +29,7 @@ const Job = ({ job }) => {
         try {
             setLoading(true);
             // Explicit Full URL to avoid path issues
-            const res = await axios.post(`http://localhost:8000/api/v1/user/save/${job?._id}`, {}, { withCredentials: true });
+            const res = await axios.post(`${USER_API_END_POINT}/save/${job?._id}`, {}, { withCredentials: true });
 
             if (res.data.success) {
                 dispatch(toggleSavedJob(job));

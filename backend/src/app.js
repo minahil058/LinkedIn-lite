@@ -22,7 +22,7 @@ app.use(morgan('dev'));
 app.use(cookieParser()); // Initialized before routes
 
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://linkedin-lite.vercel.app'],
     credentials: true
 };
 app.use(cors(corsOptions));

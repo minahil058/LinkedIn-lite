@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setLoading, setUser } from '../../redux/authSlice'
 import { motion } from 'framer-motion'
 import { User, Briefcase, CheckCircle2, Loader2 } from 'lucide-react'
+import { USER_API_END_POINT } from '../../utils/constant'
 
 const Login = () => {
     const [input, setInput] = useState({
@@ -40,7 +41,7 @@ const Login = () => {
             setLocalLoading(true);
             dispatch(setLoading(true));
             
-            const res = await axios.post(`http://localhost:8000/api/v1/user/login`, input, {
+            const res = await axios.post(`${USER_API_END_POINT}/login`, input, {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true,
             });
