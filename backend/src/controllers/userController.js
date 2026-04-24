@@ -18,8 +18,12 @@ const register = async (req, res) => {
         await User.create({ name, email, phoneNumber, password, role, profile: { bio: "", skills: [], resume: "", resumeName: "", profilePhoto: "" } });
         return res.status(201).json({ message: "Account created successfully.", success: true });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error", success: false });
+        console.error("Registration Error:", error);
+        return res.status(500).json({ 
+            message: "Internal server error during registration", 
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            success: false 
+        });
     }
 }
 
@@ -41,16 +45,35 @@ const login = async (req, res) => {
             return res.status(400).json({ message: "Account doesn't exist with current role.", success: false });
         };
         const tokenData = { userId: user._id };
-        const token = await jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: '1d' });
+        const secret = process.env.SECRET_KEY || process.env.JWT_SECRET;
+        if (!secret) {
+            console.error("CRITICAL ERROR: SECRET_KEY or JWT_SECRET is not defined in environment variables");
+            return res.status(500).json({ message: "Server configuration error", success: false });
+        }
+        
+        const token = jwt.sign(tokenData, secret, { expiresIn: '1d' });
+        
         user = { _id: user._id, name: user.name, email: user.email, phoneNumber: user.phoneNumber, role: user.role, profile: user.profile };
-        return res.status(200).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
+        
+        const cookieOptions = {
+            maxAge: 1 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production'
+        };
+
+        return res.status(200).cookie("token", token, cookieOptions).json({
             message: `Welcome back ${user.name}`,
             user,
             success: true
         })
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error", success: false });
+        console.error("Login Error:", error);
+        return res.status(500).json({ 
+            message: "Internal server error during login", 
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            success: false 
+        });
     }
 }
 

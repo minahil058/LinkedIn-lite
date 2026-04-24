@@ -9,7 +9,12 @@ const isAuthenticated = async (req, res, next) => {
                 success: false
             })
         }
-        const decode = await jwt.verify(token, process.env.SECRET_KEY);
+        const secret = process.env.SECRET_KEY || process.env.JWT_SECRET;
+        if (!secret) {
+            console.error("Authentication Middleware Error: SECRET_KEY or JWT_SECRET is missing");
+            return res.status(500).json({ message: "Server configuration error", success: false });
+        }
+        const decode = jwt.verify(token, secret);
         if (!decode) {
             return res.status(401).json({
                 message: "Invalid token",
