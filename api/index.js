@@ -1,18 +1,29 @@
 const app = require('../backend/src/app');
 const connectDB = require('../backend/src/config/db');
 
-let isConnected = false;
+// Database connection helper
+const connect = async () => {
+    try {
+        await connectDB();
+        console.log("Database connected successfully");
+    } catch (err) {
+        console.error("Database connection failed:", err);
+        throw err;
+    }
+};
 
 module.exports = async (req, res) => {
+    // Vercel ki request handle karne ke liye
     try {
-        if (!isConnected) {
-            await connectDB();
-            isConnected = true;
-        }
-        // Ye line ensure karti hai ke Express handle kare request ko
+        await connect();
+        // Express app handle logic
         return app(req, res);
     } catch (error) {
         console.error("Vercel Function Error:", error);
-        res.status(500).json({ success: false, message: "Server Error" });
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        });
     }
 };
